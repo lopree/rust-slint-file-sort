@@ -1,4 +1,4 @@
-import { Button, VerticalBox, LineEdit } from "std-widgets.slint";
+import { Button, VerticalBox, LineEdit} from "std-widgets.slint";
 import "../resources/LXGWWenKaiGB-Regular.ttf";
 
 component custom-lineedit inherits LineEdit {
@@ -8,29 +8,6 @@ component custom-lineedit inherits LineEdit {
     // height: 40px;
     read-only: true;
     horizontal-alignment: center;
-}
-
-component MessageDialog inherits Window {
-    callback ok-clicked();
-    in property <string> message:"";
-    in property <bool> show:false;
-    width: 300px;
-    height: 150px;
-    visible: show;
-
-    VerticalBox {
-        Text {
-            text: root.message;
-            horizontal-alignment: center;
-        }
-        Button {
-            text: "确定";
-            clicked => {
-                root.visible = false;
-                root.ok-clicked();
-            }
-        }
-    }
 }
 
 export component AppWindow inherits Window {
@@ -45,8 +22,7 @@ export component AppWindow inherits Window {
     in property <string> new_folder_path: "选择需要处理的文件夹";
     //重置按钮
     callback reposition();
-    in property <string> message:"";
-    in property <bool> show:false;
+    callback show-popup();
     //布局
     VerticalLayout {
         padding: 20px;
@@ -91,10 +67,45 @@ export component AppWindow inherits Window {
             Row {
                 Button {
                     text: "重置";
-                    clicked => {root.reposition();}
+                    clicked => {
+                        root.reposition();
+                    }
                 }
             }
         }
+        popup := PopupWindow {
+            x: 170px;
+            y: 60px;
+            height: 70px; 
+            width: 70px;
+            close-on-click: false;
+            Rectangle { 
+                height:100%; 
+                width: 100%; 
+                background: grey; 
+                border-width: 1px;
+                border-radius: 10px;
+                border-color: blue;
+            }
+            
+            VerticalBox {
+                Text {
+                    text: "操作完成";
+                }
+                Button {
+                    text: "确定";
+                    clicked => {
+                        popup.close();
+                    }
+                }
+            }
+           
+        }
+    
+    }
+
+    show-popup => {
+        popup.show();
     }
 }
 

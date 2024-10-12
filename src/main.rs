@@ -11,7 +11,7 @@ fn main() -> Result<(), slint::PlatformError> {
     let folder_path = rc::Rc::new(cell::RefCell::new(String::new()));
     let app = AppWindow::new()?;
     let app_weak = app.as_weak();
-
+    //记录选择的文件夹
     let folder_path_clone = folder_path.clone();
     app.on_select_folder(move || {
         let app = app_weak.unwrap();
@@ -21,12 +21,15 @@ fn main() -> Result<(), slint::PlatformError> {
             app.set_new_folder_path(folder.to_string_lossy().to_string().into());
         }
     });
-
+    //重置文件夹
     let folder_path_clone = folder_path.clone();
+    let app_weak = app.as_weak();
     app.on_reposition(move || {
         let path_string = folder_path_clone.borrow();
         if !path_string.is_empty() {
             reset_folder(Path::new(&*path_string));
+            let app = app_weak.unwrap();
+            app.invoke_show_popup();
         }
     });
 
