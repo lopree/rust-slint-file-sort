@@ -1,6 +1,33 @@
-use std::fs;
-use std::path::{Path, PathBuf};
+use std::{fs, io};
+use std::path::{Path};
 use chrono::{DateTime, Local, Timelike, Datelike};
+//根据文件后缀分类
+pub fn sort_files_by_extension(dir: &Path) -> io::Result<()> {
+    let entries = fs::read_dir(dir)?;
+
+    for entry in entries {
+        let entry = entry?;
+        let path = entry.path();
+
+        if path.is_file() {
+            if let Some(extension) = path.extension() {
+                let extension = extension.to_string_lossy().to_lowercase();
+                let target_dir = dir.join(&extension);
+
+                if !target_dir.exists() {
+                    fs::create_dir(&target_dir)?;
+                }
+
+                let file_name = path.file_name().unwrap();
+                let new_path = target_dir.join(file_name);
+
+                fs::rename(&path, &new_path)?;
+            }
+        }
+    }
+
+    Ok(())
+}
 //分类：按照年月日时来分类
 pub fn organize_files_by_time(source_dir: &Path) -> std::io::Result<()> {
     for entry in fs::read_dir(source_dir)? {

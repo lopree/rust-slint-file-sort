@@ -39,7 +39,24 @@ fn main() -> Result<(), slint::PlatformError> {
             };
         }
     });
-
+    //以后缀分类文件
+    let folder_path_clone = folder_path.clone();
+    let app_weak = app.as_weak();
+    app.on_organize_by_extension(move || {
+        let path_string = folder_path_clone.borrow();
+        if !path_string.is_empty() {
+            let result = sort_files_by_extension(Path::new(&*path_string));
+            let app = app_weak.unwrap();
+            match result {
+                Ok(_) => {
+                    app.invoke_show_popup_with_message("文件以后缀分类完成".into());
+                }
+                Err(e) => {
+                    app.invoke_show_popup_with_message(format!("文件整理失败: {}", e).into());
+                }
+            };
+        }
+    });
     //重置文件夹
     let folder_path_clone = folder_path.clone();
     let app_weak = app.as_weak();
