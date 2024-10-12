@@ -4,8 +4,6 @@ import "../resources/LXGWWenKaiGB-Regular.ttf";
 component custom-lineedit inherits LineEdit {
     enabled: false;
     font-size: 14px;
-    // width: 200px;
-    // height: 40px;
     read-only: true;
     horizontal-alignment: center;
 }
@@ -16,6 +14,7 @@ export component AppWindow inherits Window {
     icon: @image-url("../resources/File.png");
     default-font-family: "霞鹜文楷等宽 GB";
     background: #111415;
+
     //按钮回调函数和属性
     //选择文件夹按钮
     callback select-folder();
@@ -78,8 +77,8 @@ export component AppWindow inherits Window {
             }
         }
         popup := PopupWindow {
-            x: 170px;
-            y: 60px;
+            x: parent.width / 2 - self.width / 2;
+            y: parent.height / 2 - self.height / 2;
             height: 70px; 
             width: 70px;
             close-on-click: false;
