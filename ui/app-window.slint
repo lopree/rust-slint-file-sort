@@ -20,6 +20,8 @@ export component AppWindow inherits Window {
     //选择文件夹按钮
     callback select-folder();
     in property <string> new_folder_path: "选择需要处理的文件夹";
+    //分类按钮
+    callback organize();
     //重置按钮
     callback reposition();
     callback show-popup();
@@ -59,11 +61,10 @@ export component AppWindow inherits Window {
                 }
 
                 Button {
-                    text: "归类(年月)";
-               
-                }
-                Button {
-                    text: "归类(日分)";
+                    text: "归类(时间)";
+                    clicked => {
+                        root.organize();
+                    }
                 }
             }
 

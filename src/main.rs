@@ -1,9 +1,9 @@
 #![cfg_attr(not(debug_assertions), windows_subsystem = "windows")]
-use std::path::Path;
 use rfd::FileDialog;
+use std::path::Path;
 use std::{cell, rc};
 mod file_sort;
-use file_sort::reset_folder;
+use file_sort::*;
 
 slint::include_modules!();
 
@@ -21,6 +21,25 @@ fn main() -> Result<(), slint::PlatformError> {
             app.set_new_folder_path(folder.to_string_lossy().to_string().into());
         }
     });
+    //分类文件夹
+    let folder_path_clone = folder_path.clone();
+    let app_weak = app.as_weak();
+    app.on_organize(move || {
+        let path_string = folder_path_clone.borrow();
+        if !path_string.is_empty() {
+            let result = organize_files_by_time(Path::new(&*path_string));
+            let app = app_weak.unwrap();
+            match result {
+                Ok(_) => {
+                    app.invoke_show_popup_with_message("文件整理完成".into());
+                }
+                Err(e) => {
+                    app.invoke_show_popup_with_message(format!("文件整理失败: {}", e).into());
+                }
+            };
+        }
+    });
+
     //重置文件夹
     let folder_path_clone = folder_path.clone();
     let app_weak = app.as_weak();
