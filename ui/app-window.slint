@@ -1,0 +1,100 @@
+import { Button, VerticalBox, LineEdit } from "std-widgets.slint";
+import "../resources/LXGWWenKaiGB-Regular.ttf";
+
+component custom-lineedit inherits LineEdit {
+    enabled: false;
+    font-size: 14px;
+    // width: 200px;
+    // height: 40px;
+    read-only: true;
+    horizontal-alignment: center;
+}
+
+component MessageDialog inherits Window {
+    callback ok-clicked();
+    in property <string> message:"";
+    in property <bool> show:false;
+    width: 300px;
+    height: 150px;
+    visible: show;
+
+    VerticalBox {
+        Text {
+            text: root.message;
+            horizontal-alignment: center;
+        }
+        Button {
+            text: "确定";
+            clicked => {
+                root.visible = false;
+                root.ok-clicked();
+            }
+        }
+    }
+}
+
+export component AppWindow inherits Window {
+    //基本设置
+    title: "文件处理工具";
+    icon: @image-url("../resources/File.png");
+    default-font-family: "霞鹜文楷等宽 GB";
+    background: #111415;
+    //按钮回调函数和属性
+    //选择文件夹按钮
+    callback select-folder();
+    in property <string> new_folder_path: "选择需要处理的文件夹";
+    //重置按钮
+    callback reposition();
+    in property <string> message:"";
+    in property <bool> show:false;
+    //布局
+    VerticalLayout {
+        padding: 20px;
+        spacing: 20px;
+
+        GridLayout {
+            spacing: 10px;
+            Row {
+                Button {
+                    width: 90px;
+                    height: 40px;
+                    text: "选择文件夹";
+                    clicked => { root.select-folder(); }
+                }
+
+                selected-folder-path := custom-lineedit {
+                    placeholder-text: root.new_folder_path;
+                }
+            }
+        }
+
+        GridLayout {
+            spacing: 10px;
+            Row {
+                Button {
+                    text: "删除LRF";
+               
+                }
+                Button {
+                    text: "归类(后缀)";
+                }
+
+                Button {
+                    text: "归类(年月)";
+               
+                }
+                Button {
+                    text: "归类(日分)";
+                }
+            }
+
+            Row {
+                Button {
+                    text: "重置";
+                    clicked => {root.reposition();}
+                }
+            }
+        }
+    }
+}
+
