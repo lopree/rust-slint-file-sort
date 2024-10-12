@@ -4,8 +4,24 @@ use std::path::Path;
 use std::{cell, rc};
 mod file_sort;
 use file_sort::*;
-
+use std::io;
 slint::include_modules!();
+const MSG_DELETE_SUCCESS: &str = "文件删除成功";
+const MSG_ORGANIZE_SUCCESS: &str = "文件以时间整理完成";
+const MSG_ORGANIZE_BY_EXTENSION_SUCCESS: &str = "文件以后缀分类完成";
+const MSG_RENAME_SUCCESS: &str = "文件重命名成功";
+const MSG_RESET_SUCCESS: &str = "重置完成";
+fn handle_result(app: &AppWindow, result: io::Result<()>, success_message: &str) {
+    match result {
+        Ok(_) => {
+            app.invoke_show_popup_with_message(success_message.into());
+        }
+        Err(e) => {
+            app.invoke_show_popup_with_message(format!("操作失败: {}", e).into());
+        }
+    }
+}
+
 
 fn main() -> Result<(), slint::PlatformError> {
     let folder_path = rc::Rc::new(cell::RefCell::new(String::new()));
@@ -29,14 +45,7 @@ fn main() -> Result<(), slint::PlatformError> {
         if !path_string.is_empty() {
             let result = delete_lrf_files(Path::new(&*path_string));
             let app = app_weak.unwrap();
-            match result {
-                Ok(_) => {
-                    app.invoke_show_popup_with_message("删除成功".into());
-                }
-                Err(e) => {
-                    app.invoke_show_popup_with_message(format!("文件整理失败: {}", e).into());
-                }
-            };
+            handle_result(&app,result,MSG_DELETE_SUCCESS)
         }
     });
     //分类文件夹
@@ -47,14 +56,7 @@ fn main() -> Result<(), slint::PlatformError> {
         if !path_string.is_empty() {
             let result = organize_files_by_time(Path::new(&*path_string));
             let app = app_weak.unwrap();
-            match result {
-                Ok(_) => {
-                    app.invoke_show_popup_with_message("文件整理完成".into());
-                }
-                Err(e) => {
-                    app.invoke_show_popup_with_message(format!("文件整理失败: {}", e).into());
-                }
-            };
+            handle_result(&app,result,MSG_ORGANIZE_SUCCESS);
         }
     });
     //以后缀分类文件
@@ -65,14 +67,7 @@ fn main() -> Result<(), slint::PlatformError> {
         if !path_string.is_empty() {
             let result = sort_files_by_extension(Path::new(&*path_string));
             let app = app_weak.unwrap();
-            match result {
-                Ok(_) => {
-                    app.invoke_show_popup_with_message("文件以后缀分类完成".into());
-                }
-                Err(e) => {
-                    app.invoke_show_popup_with_message(format!("文件整理失败: {}", e).into());
-                }
-            };
+            handle_result(&app,result,MSG_ORGANIZE_BY_EXTENSION_SUCCESS);
         }
     });
     //重命名文件
@@ -83,14 +78,7 @@ fn main() -> Result<(), slint::PlatformError> {
         if !path_string.is_empty() {
             let result = rename_files_by_modified_time(Path::new(&*path_string));
             let app = app_weak.unwrap();
-            match result {
-                Ok(_) => {
-                    app.invoke_show_popup_with_message("文件重命名成功".into());
-                }
-                Err(e) => {
-                    app.invoke_show_popup_with_message(format!("文件整理失败: {}", e).into());
-                }
-            };
+            handle_result(&app,result,MSG_RENAME_SUCCESS);
         }
     });
     //重置文件夹
@@ -101,7 +89,7 @@ fn main() -> Result<(), slint::PlatformError> {
         if !path_string.is_empty() {
             reset_folder(Path::new(&*path_string));
             let app = app_weak.unwrap();
-            app.invoke_show_popup_with_message("重置完成".to_string().into());
+            app.invoke_show_popup_with_message(MSG_RESET_SUCCESS.to_string().into());
         }
     });
 
