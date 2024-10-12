@@ -29,7 +29,7 @@ fn main() -> Result<(), slint::PlatformError> {
         if !path_string.is_empty() {
             reset_folder(Path::new(&*path_string));
             let app = app_weak.unwrap();
-            app.invoke_show_popup();
+            app.invoke_show_popup_with_message("重置完成".to_string().into());
         }
     });
 

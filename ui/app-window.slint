@@ -23,6 +23,9 @@ export component AppWindow inherits Window {
     //重置按钮
     callback reposition();
     callback show-popup();
+    //弹出的二级菜单那
+    in-out property <string> message;
+    callback show-popup-with-message(string);
     //布局
     VerticalLayout {
         padding: 20px;
@@ -90,7 +93,7 @@ export component AppWindow inherits Window {
             
             VerticalBox {
                 Text {
-                    text: "操作完成";
+                    text: root.message;
                 }
                 Button {
                     text: "确定";
@@ -104,7 +107,8 @@ export component AppWindow inherits Window {
     
     }
 
-    show-popup => {
+    show-popup-with-message(new-message) => {
+        self.message = new-message;
         popup.show();
     }
 }
