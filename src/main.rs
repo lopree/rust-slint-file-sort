@@ -24,6 +24,24 @@ fn main() -> Result<(), slint::PlatformError> {
     //分类文件夹
     let folder_path_clone = folder_path.clone();
     let app_weak = app.as_weak();
+    app.on_delete_lrf(move || {
+        let path_string = folder_path_clone.borrow();
+        if !path_string.is_empty() {
+            let result = delete_lrf_files(Path::new(&*path_string));
+            let app = app_weak.unwrap();
+            match result {
+                Ok(_) => {
+                    app.invoke_show_popup_with_message("删除成功".into());
+                }
+                Err(e) => {
+                    app.invoke_show_popup_with_message(format!("文件整理失败: {}", e).into());
+                }
+            };
+        }
+    });
+    //分类文件夹
+    let folder_path_clone = folder_path.clone();
+    let app_weak = app.as_weak();
     app.on_organize(move || {
         let path_string = folder_path_clone.borrow();
         if !path_string.is_empty() {
@@ -50,6 +68,24 @@ fn main() -> Result<(), slint::PlatformError> {
             match result {
                 Ok(_) => {
                     app.invoke_show_popup_with_message("文件以后缀分类完成".into());
+                }
+                Err(e) => {
+                    app.invoke_show_popup_with_message(format!("文件整理失败: {}", e).into());
+                }
+            };
+        }
+    });
+    //重命名文件
+    let folder_path_clone = folder_path.clone();
+    let app_weak = app.as_weak();
+    app.on_rename(move || {
+        let path_string = folder_path_clone.borrow();
+        if !path_string.is_empty() {
+            let result = rename_files_by_modified_time(Path::new(&*path_string));
+            let app = app_weak.unwrap();
+            match result {
+                Ok(_) => {
+                    app.invoke_show_popup_with_message("文件重命名成功".into());
                 }
                 Err(e) => {
                     app.invoke_show_popup_with_message(format!("文件整理失败: {}", e).into());

@@ -1,6 +1,81 @@
 use std::{fs, io};
 use std::path::{Path};
 use chrono::{DateTime, Local, Timelike, Datelike};
+//删除lrf文件
+pub fn delete_lrf_files(dir: &Path) -> io::Result<()> {
+    let entries = fs::read_dir(dir)?;
+
+    for entry in entries {
+        let entry = entry?;
+        let path = entry.path();
+
+        if path.is_file() {
+            if let Some(extension) = path.extension() {
+                if extension.to_ascii_lowercase() == "lrf" {
+                    fs::remove_file(path.clone())?;
+                    //println!("Deleted: {:?}", path);
+                }
+            }
+        }
+    }
+
+    Ok(())
+}
+//修改文件名
+pub fn rename_files_by_modified_time(dir: &Path) -> io::Result<()> {
+    let entries = fs::read_dir(dir)?;
+
+    for entry in entries {
+        let entry = entry?;
+        let path = entry.path();
+
+        if path.is_file() {
+            if let Ok(metadata) = fs::metadata(&path) {
+                if let Ok(time) = metadata.modified() {
+                    let datetime: DateTime<Local> = time.into();
+                    let new_name = datetime.format("%Y%m%d_%H%M%S").to_string();
+
+                    // 保留原始文件扩展名
+                    let extension = path.extension()
+                        .and_then(|ext| ext.to_str())
+                        .unwrap_or("");
+
+                    let new_name = if !extension.is_empty() {
+                        format!("{}.{}", new_name, extension)
+                    } else {
+                        new_name
+                    };
+
+                    let new_path = path.with_file_name(&new_name);
+
+                    // 检查新文件名是否与原文件名相同
+                    if path != new_path {
+                        // 检查是否存在同名文件
+                        if new_path.exists() {
+                            // 如果存在，添加一个计数器到文件名
+                            let mut counter = 1;
+                            let mut unique_new_path = new_path.clone();
+                            while unique_new_path.exists() {
+                                let file_stem = new_path.file_stem()
+                                    .and_then(|s| s.to_str())
+                                    .unwrap_or("");
+                                let new_name = format!("{}_{:03}", file_stem, counter);
+                                unique_new_path = path.with_file_name(new_name).with_extension(extension);
+                                counter += 1;
+                            }
+                            fs::rename(&path, &unique_new_path)?;
+                        } else {
+                            fs::rename(&path, &new_path)?;
+                        }
+                    }
+                    // 如果新文件名与原文件名相同，则跳过
+                }
+            }
+        }
+    }
+
+    Ok(())
+}
 //根据文件后缀分类
 pub fn sort_files_by_extension(dir: &Path) -> io::Result<()> {
     let entries = fs::read_dir(dir)?;
@@ -105,4 +180,3 @@ fn move_files_to_parent(from: &Path, to: &Path) {
 fn is_directory_empty(path: &Path) -> bool {
     fs::read_dir(path).map(|mut i| i.next().is_none()).unwrap_or(false)
 }
-

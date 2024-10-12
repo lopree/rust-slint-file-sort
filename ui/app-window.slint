@@ -19,10 +19,14 @@ export component AppWindow inherits Window {
     //选择文件夹按钮
     callback select-folder();
     in property <string> new_folder_path: "选择需要处理的文件夹";
+    //删除lrf
+    callback delete_lrf();
     //分类按钮
     callback organize();
     //根据后缀分类
     callback organize_by_extension();
+    //重命名
+    callback rename();
     //重置按钮
     callback reposition();
     //弹出二级菜单，设置信息
@@ -54,7 +58,7 @@ export component AppWindow inherits Window {
             Row {
                 Button {
                     text: "删除LRF";
-               
+                    clicked => {root.delete_lrf()}
                 }
                 Button {
                     text: "归类(后缀)";
@@ -64,6 +68,10 @@ export component AppWindow inherits Window {
                 Button {
                     text: "归类(时间)";
                     clicked => {root.organize();}
+                }
+                Button {
+                    text: "重命名";
+                    clicked => {root.rename();}
                 }
             }
 
